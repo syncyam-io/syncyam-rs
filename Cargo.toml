@@ -1,0 +1,13 @@
+[package]
+name = "syncyam"
+version = "0.1.0"
+edition = "2024"
+# Except for the first time, the rust version will be kept at least one year behind the latest release and update it quarterly.
+rust-version = "1.87.0"
+
+[dependencies]
+tracing = "^0.1.41"
+nanoid = "^0.4.0"
+
+[dev-dependencies]
+rstest = "^0.26.1"
