@@ -1,1 +1,1 @@
-# syncyam-rs
+# SyncYam rust SDK
