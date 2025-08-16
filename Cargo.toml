@@ -8,6 +8,9 @@ rust-version = "1.87.0"
 [dependencies]
 tracing = "^0.1.41"
 nanoid = "^0.4.0"
+tokio = { version = "^1.47.1", features = ["full"] }
+parking_lot = "^0.12.4"
 
 [dev-dependencies]
 rstest = "^0.26.1"
+awaitility = "^0.4.1"
