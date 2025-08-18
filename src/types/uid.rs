@@ -131,7 +131,7 @@ mod tests_uid {
         }
     }
 
-    fn can_try_from_str( input: &str, should_succeed: bool) {
+    fn can_try_from_str(input: &str, should_succeed: bool) {
         let result = Uid::try_from(input);
 
         if should_succeed {
@@ -142,5 +142,4 @@ mod tests_uid {
             assert!(result.is_err());
         }
     }
-
 }
