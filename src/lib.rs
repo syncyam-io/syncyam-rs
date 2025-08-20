@@ -1,5 +1,8 @@
+pub use crate::types::datatype::{DataType, DatatypeState};
+
 #[allow(dead_code)]
 mod constants;
+mod datatypes;
 pub(crate) mod observability;
 pub(crate) mod types;
 pub(crate) mod utils;

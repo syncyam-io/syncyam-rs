@@ -1,10 +1,4 @@
-use std::{
-    cell::RefCell,
-    fmt::Debug,
-    io::Write,
-    sync::OnceLock,
-    thread,
-};
+use std::{cell::RefCell, fmt::Debug, io::Write, sync::OnceLock, thread};
 
 use itoa::Buffer;
 use libc::atexit;
@@ -117,7 +111,6 @@ impl SyncYamVisitor {
 
     #[inline]
     fn category_into(&self, buf: &mut Vec<u8>) {
-
         let col = self.collection.as_deref().unwrap_or("");
         let client = self.client.as_deref().unwrap_or("");
         let cuid = self.cuid.as_deref().unwrap_or("");

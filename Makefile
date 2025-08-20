@@ -10,7 +10,7 @@ lint:
 
 .PHONY: tarpaulin
 tarpaulin:
-	cargo tarpaulin -o html --all-features --engine llvm --output-dir ./coverage
+	SYNCYAM_RS_OTEL_ENABLED=true cargo tarpaulin -o html --all-features --engine llvm --output-dir ./coverage
 	open coverage/tarpaulin-report.html
 
 .PHONY: enable-jeager
@@ -23,3 +23,6 @@ enable-jeager:
       -p 5778:5778 \
       -p 9411:9411 \
       cr.jaegertracing.io/jaegertracing/jaeger:latest
+
+doc:
+	cargo doc --open
