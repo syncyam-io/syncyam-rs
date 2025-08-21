@@ -8,10 +8,11 @@ pub enum DataType {
 }
 
 /// DatatypeState represents the state of a Datatype in SyncYam.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[repr(i32)]
 pub enum DatatypeState {
     /// The Datatype is scheduled to be created on the SyncYam server.
+    #[default]
     DueToCreate = 0,
     /// The Datatype is scheduled to be subscribed on the SyncYam server.
     DueToSubscribe = 1,

@@ -28,10 +28,12 @@ static PROVIDER: OnceLock<Mutex<SdkTracerProvider>> = OnceLock::new();
 
 extern "C" fn shutdown_provider() {
     let provider = PROVIDER.get().unwrap();
-    provider
-        .lock()
-        .shutdown()
-        .expect("failed to shutdown provider");
+    let provider = provider.lock();
+
+    if let Err(e) = provider.shutdown() {
+        println!("failed to shutdown provider: {:?}", e);
+    }
+
 }
 
 pub fn init(level: LevelFilter) {

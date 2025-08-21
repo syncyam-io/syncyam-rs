@@ -4,17 +4,17 @@ install:
 
 .PHONY: lint
 lint:
-	cargo +nightly fmt --check
+	cargo +nightly fmt --all --check
 	cargo check --all-features --tests
-	cargo clippy --tests --all-features  -- -D warnings
+	cargo clippy --workspace --all-targets --tests --all-features -- -D warnings
 
 .PHONY: tarpaulin
 tarpaulin:
 	SYNCYAM_RS_OTEL_ENABLED=true cargo tarpaulin -o html --all-features --engine llvm --output-dir ./coverage
 	open coverage/tarpaulin-report.html
 
-.PHONY: enable-jeager
-enable-jeager:
+.PHONY: enable-jaeger
+enable-jaeger:
 	export SYNCYAM_RS_OTEL_ENABLED=true
 	docker run --rm -d --name jaeger \
       -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 -e COLLECTOR_OTLP_ENABLED=true -p 16686:16686 \
@@ -24,5 +24,6 @@ enable-jeager:
       -p 9411:9411 \
       cr.jaegertracing.io/jaegertracing/jaeger:latest
 
+.PHONY: doc
 doc:
 	cargo doc --open
