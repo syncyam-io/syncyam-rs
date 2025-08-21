@@ -1,10 +1,4 @@
-use std::{
-    cell::RefCell,
-    fmt::Debug,
-    io::Write,
-    sync::OnceLock,
-    thread,
-};
+use std::{cell::RefCell, fmt::Debug, io::Write, sync::OnceLock, thread};
 
 use itoa::Buffer;
 use libc::atexit;
@@ -34,10 +28,11 @@ static PROVIDER: OnceLock<Mutex<SdkTracerProvider>> = OnceLock::new();
 
 extern "C" fn shutdown_provider() {
     let provider = PROVIDER.get().unwrap();
-    provider
-        .lock()
-        .shutdown()
-        .expect("failed to shutdown provider");
+    let provider = provider.lock();
+
+    if let Err(e) = provider.shutdown() {
+        println!("failed to shutdown provider: {:?}", e);
+    }
 }
 
 pub fn init(level: LevelFilter) {
@@ -117,7 +112,6 @@ impl SyncYamVisitor {
 
     #[inline]
     fn category_into(&self, buf: &mut Vec<u8>) {
-
         let col = self.collection.as_deref().unwrap_or("");
         let client = self.client.as_deref().unwrap_or("");
         let cuid = self.cuid.as_deref().unwrap_or("");

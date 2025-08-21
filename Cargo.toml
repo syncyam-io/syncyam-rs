@@ -19,12 +19,7 @@ tracing = [
 ]
 
 [dependencies]
-tracing = "^0.1.41"
-nanoid = "^0.4.0"
-tokio = { version = "^1.47.1", features = ["full"] }
-parking_lot = "^0.12.4"
-time = { version = "^0.3", features = ["formatting", "local-offset", "macros"]}
-
+# optional
 libc = { version = "^0.2.172", optional = true }
 once_cell = { version = "^1.21.3", optional = true }
 tracing-subscriber = { version = "^0.3.19", features = ["json", "fmt", "env-filter"], optional = true }
@@ -33,7 +28,17 @@ opentelemetry_sdk = { version = "^0.30.0", optional = true }
 opentelemetry-otlp = { version = "^0.30.0", features = ["grpc-tonic"], optional = true }
 tracing-opentelemetry = { version = "^0.31.0", optional = true }
 ctor = { version = "^0.5.0", optional = true }
-itoa = "1.0.15"
+
+tracing = "^0.1.41"
+nanoid = "^0.4.0"
+tokio = { version = "^1.47.1", features = ["full"] }
+parking_lot = "^0.12.4"
+time = { version = "^0.3", features = ["formatting", "local-offset", "macros"]}
+itoa = "^1.0.15"
+derive_more = { version = "^2.0.1", features = ["display", "debug"] }
+chrono = "0.4.41"
+serde = { version = "^1.0.219", features = ["derive", "rc"] }
+serde_json = "^1.0.143"
 
 [dev-dependencies]
 rstest = "^0.26.1"
