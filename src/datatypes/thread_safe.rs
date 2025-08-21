@@ -2,7 +2,7 @@ use parking_lot::RwLock;
 
 use crate::{
     DataType, DatatypeState,
-    datatypes::{datatype::Datatype, mutable::MutableDatatype},
+    datatypes::{crdts::Crdt, datatype::Datatype, mutable::MutableDatatype},
 };
 
 struct Attributes {
@@ -35,7 +35,10 @@ impl ThreadSafeDatatype {
             key: key.to_owned(),
             r#type,
         };
-        let mutable = RwLock::new(MutableDatatype { state });
+        let mutable = RwLock::new(MutableDatatype {
+            state,
+            crdt: Crdt::new(r#type),
+        });
         Self { attr, mutable }
     }
 }

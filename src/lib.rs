@@ -1,9 +1,12 @@
-pub use crate::types::datatype::{DataType, DatatypeState};
-
+pub use crate::{
+    datatypes::{counter::Counter, datatype::Datatype},
+    types::datatype::{DataType, DatatypeState},
+};
 #[allow(dead_code)]
 mod constants;
-mod datatypes;
+pub(crate) mod datatypes;
 pub(crate) mod observability;
+pub(crate) mod operations;
 pub(crate) mod types;
 pub(crate) mod utils;
 

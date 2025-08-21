@@ -33,7 +33,6 @@ extern "C" fn shutdown_provider() {
     if let Err(e) = provider.shutdown() {
         println!("failed to shutdown provider: {:?}", e);
     }
-
 }
 
 pub fn init(level: LevelFilter) {
