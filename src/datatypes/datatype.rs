@@ -1,5 +1,24 @@
-use crate::{DataType, DatatypeState, datatypes::thread_safe::ThreadSafeDatatype};
+use crate::{datatypes::thread_safe::ThreadSafeDatatype, DataType, DatatypeState};
 
+/// The `Datatype` trait defines the common interface for all
+/// conflict-free datatypes (e.g., Counter, Register).
+///
+/// Each datatype exposes:
+/// - a **key**: a unique identifier used to distinguish instances,
+/// - a **type**: an enum variant of [`DataType`] describing the kind of datatype,
+/// - a **state**: a [`DatatypeState`] indicating the current lifecycle/status.
+///
+///
+/// # Example
+/// ```
+/// use syncyam::{Counter, Datatype};
+/// use syncyam::{DatatypeState, DataType};
+/// // TODO: this should be updated to create a Counter from a client
+/// let counter = Counter::new("example".to_string(), DatatypeState::DueToCreate);
+/// assert_eq!(counter.get_key(), "example");
+/// assert_eq!(counter.get_type(), DataType::Counter);
+/// assert_eq!(counter.get_state(), DatatypeState::DueToCreate);
+/// ```
 pub trait Datatype {
     fn get_key(&self) -> &str;
     fn get_type(&self) -> DataType;
@@ -30,8 +49,8 @@ where
 #[cfg(test)]
 mod tests_datatype_trait {
     use crate::{
-        DataType, DatatypeState,
-        datatypes::{datatype::Datatype, thread_safe::ThreadSafeDatatype},
+        datatypes::{datatype::Datatype, thread_safe::ThreadSafeDatatype}, DataType,
+        DatatypeState,
     };
 
     #[test]

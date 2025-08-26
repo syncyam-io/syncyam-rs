@@ -1,18 +1,19 @@
 use std::sync::Arc;
 
 use crate::{
-    DataType, DatatypeState,
-    datatypes::{datatype::DatatypeBlanket, thread_safe::ThreadSafeDatatype},
-    operations::Operation,
+    datatypes::{datatype::DatatypeBlanket, thread_safe::ThreadSafeDatatype}, operations::Operation,
+    DataType,
+    DatatypeState,
 };
 
-/// Counter is a conflict-free datatype that can be increased.
+/// A counter is a conflict-free datatype that supports increment operations.
 pub struct Counter {
     datatype: Arc<ThreadSafeDatatype>,
 }
 
 impl Counter {
-    pub(crate) fn new(key: String, state: DatatypeState) -> Self {
+    // TODO: this should be pub (crate)
+    pub fn new(key: String, state: DatatypeState) -> Self {
         Counter {
             datatype: Arc::new(ThreadSafeDatatype::new(&key, DataType::Counter, state)),
         }
@@ -37,8 +38,8 @@ impl DatatypeBlanket for Counter {
 #[cfg(test)]
 mod tests_counter {
     use crate::{
-        DataType,
         datatypes::{counter::Counter, datatype::Datatype},
+        DataType,
     };
 
     #[test]
