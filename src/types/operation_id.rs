@@ -14,7 +14,7 @@ pub struct OperationId {
 }
 
 impl OperationId {
-    pub fn new_with_cuid(cuid: Cuid) -> Self {
+    pub fn new_with_cuid(cuid: &Cuid) -> Self {
         Self {
             cuid: cuid.clone(),
             ..Default::default()
@@ -22,7 +22,10 @@ impl OperationId {
     }
 
     pub fn new() -> Self {
-        Self::new_with_cuid(Cuid::new_nil())
+        Self {
+            cuid: Cuid::new_nil(),
+            ..Default::default()
+        }
     }
 
     pub fn next_lamport(&mut self) -> u64 {
@@ -31,7 +34,9 @@ impl OperationId {
     }
 
     pub fn prev_lamport(&mut self) -> u64 {
-        self.lamport -= 1;
+        if self.lamport > 0 {
+            self.lamport -= 1;
+        }
         self.lamport
     }
 
@@ -41,7 +46,9 @@ impl OperationId {
     }
 
     pub fn prev_cseq(&mut self) -> u64 {
-        self.cseq -= 1;
+        if self.cseq > 0 {
+            self.cseq -= 1;
+        }
         self.cseq
     }
 
@@ -84,7 +91,7 @@ mod tests_operation_id {
 
     #[test]
     fn can_new_and_display_operation_id() {
-        let op_id = OperationId::new_with_cuid(Cuid::new_nil());
+        let op_id = OperationId::new_with_cuid(&Cuid::new_nil());
         info!("{op_id:?}");
         assert_eq!(op_id.to_string(), "0:0000000000000000:0");
     }
@@ -100,5 +107,23 @@ mod tests_operation_id {
         op_id1.prev_lamport();
         assert_eq!(op_id1, op_id2);
         assert_eq!(op_id1, op_id1);
+    }
+
+    #[test]
+    fn can_test_operation_id_methods() {
+        let mut op_id1 = OperationId::new();
+        let mut op_id2 = OperationId::new();
+        op_id1.prev_cseq();
+
+        assert_eq!(op_id1, op_id2);
+        op_id1.prev_lamport();
+        assert_eq!(op_id1, op_id2);
+
+        op_id2.next_cseq();
+        op_id1.sync(&op_id2);
+        assert_eq!(op_id1, op_id2);
+        op_id1.prev_cseq();
+
+        assert_eq!(op_id1.partial_cmp(&op_id2).unwrap(), Ordering::Equal);
     }
 }

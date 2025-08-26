@@ -7,12 +7,14 @@ use chrono::Local;
 
 use crate::operations::body::{CounterIncreaseBody, OperationBody};
 
-mod body;
+pub mod body;
+#[allow(dead_code)]
+pub mod transaction;
 
 #[derive(Clone)]
 pub struct Operation {
     lamport: u64,
-    body: OperationBody,
+    pub body: OperationBody,
     at: SystemTime,
 }
 

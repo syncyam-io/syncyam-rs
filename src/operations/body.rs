@@ -17,7 +17,7 @@ impl Debug for OperationBody {
 #[derive(Debug, Clone, Display)]
 #[display("delta={delta})")]
 pub struct CounterIncreaseBody {
-    delta: i64,
+    pub delta: i64,
 }
 
 impl CounterIncreaseBody {
