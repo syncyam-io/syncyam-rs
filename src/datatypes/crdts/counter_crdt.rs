@@ -1,15 +1,17 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(Debug)]
+use crate::{
+    DatatypeError,
+    datatypes::common::ReturnType,
+    operations::{Operation, body::OperationBody},
+};
+
+#[derive(Debug, Default)]
 pub struct CounterCrdt {
     value: i64,
 }
 
 impl CounterCrdt {
-    pub fn new() -> Self {
-        Self { value: 0 }
-    }
-
     pub fn increase_by(&mut self, value: i64) -> i64 {
         self.value += value;
         self.value
@@ -17,6 +19,17 @@ impl CounterCrdt {
 
     pub fn value(&self) -> i64 {
         self.value
+    }
+
+    pub fn execute_local_operation(&mut self, op: &Operation) -> Result<ReturnType, DatatypeError> {
+        match op.body {
+            OperationBody::CounterIncrease(ref body) => {
+                let ret = self.increase_by(body.delta);
+                Ok(ReturnType::Counter(ret))
+            }
+            #[allow(unreachable_patterns)]
+            _ => unimplemented!(),
+        }
     }
 }
 
@@ -47,7 +60,7 @@ mod tests_counter_crdt {
 
     #[test]
     fn can_new_and_increase_counter() {
-        let mut counter = CounterCrdt::new();
+        let mut counter = CounterCrdt::default();
         counter.increase_by(1);
         counter.increase_by(-2);
         assert_eq!(counter.value(), -1);
@@ -55,7 +68,7 @@ mod tests_counter_crdt {
 
     #[test]
     fn can_serialize_and_deserialize_counter_crdt() {
-        let mut counter = CounterCrdt::new();
+        let mut counter = CounterCrdt::default();
         counter.increase_by(123);
 
         let serialized = serde_json::to_string(&counter).unwrap();

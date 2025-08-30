@@ -6,12 +6,12 @@ use crate::{
 };
 
 pub struct Transaction {
-    pub cuid: Cuid,
-    pub cseq: u64,
-    pub sseq: u64,
-    pub tag: Option<String>,
-    pub event: bool,
-    pub operations: Vec<Operation>,
+    cuid: Cuid,
+    cseq: u64,
+    sseq: u64,
+    tag: Option<String>,
+    event: bool,
+    operations: Vec<Operation>,
 }
 
 impl Transaction {
@@ -38,6 +38,10 @@ impl Transaction {
 
     pub fn set_event(&mut self, event: bool) {
         self.event = event;
+    }
+
+    pub fn push_operation(&mut self, op: Operation) {
+        self.operations.push(op);
     }
 }
 

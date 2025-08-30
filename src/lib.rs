@@ -1,14 +1,22 @@
+use std::fmt::Debug;
+
 pub use crate::{
     datatypes::{counter::Counter, datatype::Datatype},
+    errors::datatypes::DatatypeError,
     types::datatype::{DataType, DatatypeState},
 };
-#[allow(dead_code)]
+
 mod constants;
 pub(crate) mod datatypes;
+pub(crate) mod errors;
 pub(crate) mod observability;
 pub(crate) mod operations;
 pub(crate) mod types;
 pub(crate) mod utils;
+
+pub trait IntoString: Into<String> + Debug {}
+
+impl<T: Into<String> + Debug> IntoString for T {}
 
 #[cfg(feature = "tracing")]
 #[ctor::ctor]

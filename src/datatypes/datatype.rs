@@ -1,4 +1,4 @@
-use crate::{datatypes::thread_safe::ThreadSafeDatatype, DataType, DatatypeState};
+use crate::{DataType, DatatypeState, datatypes::transactional::TransactionalDatatype};
 
 /// The `Datatype` trait defines the common interface for all
 /// conflict-free datatypes (e.g., Counter, Register).
@@ -26,7 +26,7 @@ pub trait Datatype {
 }
 
 pub trait DatatypeBlanket {
-    fn get_core(&self) -> &ThreadSafeDatatype;
+    fn get_core(&self) -> &TransactionalDatatype;
 }
 
 impl<T> Datatype for T
@@ -49,14 +49,14 @@ where
 #[cfg(test)]
 mod tests_datatype_trait {
     use crate::{
-        datatypes::{datatype::Datatype, thread_safe::ThreadSafeDatatype}, DataType,
-        DatatypeState,
+        DataType, DatatypeState,
+        datatypes::{datatype::Datatype, transactional::TransactionalDatatype},
     };
 
     #[test]
     fn can_call_datatype_trait_functions() {
         let key = module_path!();
-        let data = ThreadSafeDatatype::new(key, DataType::Counter, DatatypeState::DueToCreate);
+        let data = TransactionalDatatype::new(key, DataType::Counter, DatatypeState::DueToCreate);
         assert_eq!(data.get_key(), key);
         assert_eq!(data.get_type(), DataType::Counter);
         assert_eq!(data.get_state(), DatatypeState::DueToCreate);

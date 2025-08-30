@@ -1,8 +1,10 @@
-use parking_lot::lock_api::{RawMutex as _, RawMutexFair};
-use parking_lot::RawMutex;
+use parking_lot::{
+    RawMutex,
+    lock_api::{RawMutex as _, RawMutexFair},
+};
 
 pub struct NoGuardMutex {
-    lock: RawMutex
+    lock: RawMutex,
 }
 
 impl NoGuardMutex {
@@ -18,12 +20,11 @@ impl NoGuardMutex {
 
     pub fn unlock(&self) {
         if self.lock.is_locked() {
-            unsafe {
-                self.lock.unlock_fair()
-            }
+            unsafe { self.lock.unlock_fair() }
         }
     }
 
+    #[allow(dead_code)]
     pub fn is_locked(&self) -> bool {
         self.lock.is_locked()
     }
@@ -43,9 +44,14 @@ impl Drop for NoGuardMutex {
 
 #[cfg(test)]
 mod tests_no_guard_mutex {
-    use std::sync::Arc;
-    use std::sync::atomic::{AtomicI32, Ordering};
-    use std::time::Duration;
+    use std::{
+        sync::{
+            Arc,
+            atomic::{AtomicI32, Ordering},
+        },
+        time::Duration,
+    };
+
     use crate::utils::no_guard_mutex::NoGuardMutex;
 
     #[test]
