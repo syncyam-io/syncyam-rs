@@ -5,14 +5,17 @@ use std::{
 
 use chrono::Local;
 
+#[cfg(test)]
+use crate::operations::body::Delay4TestBody;
 use crate::operations::body::{CounterIncreaseBody, OperationBody};
 
-mod body;
+pub mod body;
+pub mod transaction;
 
 #[derive(Clone)]
 pub struct Operation {
     lamport: u64,
-    body: OperationBody,
+    pub body: OperationBody,
     at: SystemTime,
 }
 
@@ -29,6 +32,15 @@ impl Operation {
         Self::new(OperationBody::CounterIncrease(CounterIncreaseBody::new(
             delta,
         )))
+    }
+
+    #[cfg(test)]
+    pub fn new_delay_for_test(duration_ms: u64) -> Self {
+        Self::new(OperationBody::Delay4Test(Delay4TestBody::new(duration_ms)))
+    }
+
+    pub fn set_lamport(&mut self, lamport: u64) {
+        self.lamport = lamport;
     }
 }
 

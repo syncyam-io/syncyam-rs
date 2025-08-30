@@ -1,3 +1,3 @@
 pub mod datatype;
-#[allow(dead_code)]
+pub mod operation_id;
 pub mod uid;

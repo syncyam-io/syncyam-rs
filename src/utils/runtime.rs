@@ -31,6 +31,7 @@ pub fn get_or_init_runtime(group: &str) -> Arc<Runtime> {
     }
 }
 
+#[allow(dead_code)]
 pub fn close_runtime(group: &str) {
     if let Some(map) = RUNTIME_MAP.get() {
         let mut map_guard = map.lock();

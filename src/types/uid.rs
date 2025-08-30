@@ -2,20 +2,20 @@ use std::fmt::{Display, Formatter};
 
 use nanoid::nanoid;
 
-pub(crate) type Cuid = Uid;
-pub(crate) type Duid = Uid;
+pub type Cuid = Uid;
+pub type Duid = Uid;
 
 const UID_LEN: usize = 16;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Ord, PartialOrd)]
-pub(crate) struct Uid(String);
+pub struct Uid(String);
 
 impl Uid {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self(nanoid!(UID_LEN))
     }
 
-    pub(crate) fn new_nil() -> Self {
+    pub fn new_nil() -> Self {
         Self("0000000000000000".to_string())
     }
 
