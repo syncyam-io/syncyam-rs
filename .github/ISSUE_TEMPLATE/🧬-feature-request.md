@@ -1,20 +1,31 @@
 ---
-name: "\U0001F9EC Feature request"
-about: Suggest an idea for this project
-title: "\U0001F9EC feat: "
+name: "🧬Feature Request"
+about: Suggest a new feature for this project
+title: '[🧬FEAT] '
 labels: enhancement
 assignees: ''
-
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## 🧬 Feature Request
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+### 📋 Problem
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+<!-- Describe the problem you're trying to solve -->
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+### 🎨 Solution
+
+<!-- Describe what you'd like to happen -->
+
+### 🔧 Alternatives
+
+<!-- Describe alternatives you've considered (optional) -->
+
+### 📎 Additional Context
+
+<!-- Add any other context, screenshots, or examples -->
+
+### ✅ Checklist
+
+- [ ] I have searched for existing issues to avoid duplicates
+- [ ] I have used an appropriate title and labels
+- [ ] I have provided enough details to understand the request
