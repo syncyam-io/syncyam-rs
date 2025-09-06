@@ -1,8 +1,9 @@
 # SyncYam rust SDK
 
-[![codecov](https://codecov.io/gh/hgroh/syncyam-rs/branch/main/graph/badge.svg)](https://codecov.io/gh/hgroh/syncyam-rs)
-[![Coverage](https://img.shields.io/badge/coverage-0%25-red.svg)](https://github.com/hgroh/syncyam-rs/actions)
-[![CI](https://github.com/hgroh/syncyam-rs/actions/workflows/coverage.yml/badge.svg)](https://github.com/hgroh/syncyam-rs/actions/workflows/coverage.yml)
+[![codecov](https://codecov.io/gh/syncyam-io/syncyam-rs/branch/main/graph/badge.svg)](https://codecov.io/gh/syncyam-io/syncyam-rs)
+[![CI](https://github.com/syncyam-io/syncyam-rs/actions/workflows/coverage.yml/badge.svg)](https://github.com/syncyam-io/syncyam-rs/actions/workflows/coverage.yml)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/syncyam-io/syncyam-rs)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/syncyam-io/syncyam-rs/build-test-coverage.yml)
 
 ## For development
 
