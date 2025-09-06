@@ -9,6 +9,11 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   build:
 
@@ -16,7 +21,70 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+          override: true
+
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin
+
       - name: Build
         run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --all-features --verbose
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-          
+
+      - name: Run tests with coverage
+        run: |
+          SYNCYAM_RS_OTEL_ENABLED=false cargo tarpaulin \
+            --all-features \
+            --engine llvm \
+            --out Lcov \
+            --out html \
+            --out xml \
+            --output-dir ./coverage
+
+      - name: Generate coverage badge
+        run: |
+          COVERAGE=$(awk -F: '/^LF:/{lf+=$2} /^LH:/{lh+=$2} END{printf("%.2f%%\n", (lh/lf)*100)}' ./coverage/lcov.info)
+          echo "COVERAGE=$COVERAGE"
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+        id: coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info, ./coverage/cobertura.xml, ./coverage/tarpaulin-report.xml
+          slug: syncyam-io/syncyam-rs
+          verbose: true
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const coverage = '${{ steps.coverage.outputs.coverage }}';
+            const comment = `## 📊 Code Coverage Report
+
+            **Coverage: ${coverage}%**
+
+            📈 Detailed coverage report is available in the artifacts.`;
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
