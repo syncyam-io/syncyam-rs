@@ -1,9 +1,38 @@
 use thiserror::Error;
 
+/// Errors that can occur while working with SyncYam datatypes.
+///
+/// This enum is shared across datatype implementations (e.g., `Counter`) to surface
+/// recoverable failures to API callers. Each variant carries a short, human-readable
+/// message describing the reason.
+///
+/// # Equality
+/// Two `DatatypeError` values are considered equal if they are the **same variant**,
+/// regardless of their message payload. See the custom `PartialEq` implementation.
+///
 #[derive(Debug, Error)]
 pub enum DatatypeError {
+    /// Transaction execution failed.
+    ///
+    /// Returned when a closure passed to `transaction` returns an error or when the
+    /// transactional context cannot be committed. The datatype state is left unchanged
+    /// if a rollback succeeds.
     #[error("failed to do transaction: {0}")]
     FailedTransaction(String),
+    /// Deserialization from bytes failed.
+    ///
+    /// Returned when decoding a datatype, operation, or internal state from a byte
+    /// sequence is not possible (e.g., invalid length, unexpected format, or version
+    /// mismatch).
+    #[error("failed to deserialize: {0}")]
+    FailedToDeserialize(String),
+    /// Applying a local operation failed.
+    ///
+    /// Returned when an operation cannot be executed in the current state (e.g.,
+    /// unsupported operation kind, precondition violations, or internal invariants
+    /// not satisfied).
+    #[error("failed to execute operation: {0}")]
+    FailedToExecuteOperation(String),
 }
 
 impl PartialEq for DatatypeError {
@@ -15,11 +44,21 @@ impl PartialEq for DatatypeError {
 #[cfg(test)]
 mod tests_datatype_errors {
     use super::*;
+    use crate::errors::err;
 
     #[test]
     fn can_compare_datatypes_errors() {
         let e1 = DatatypeError::FailedTransaction("e1".to_string());
         let e2 = DatatypeError::FailedTransaction("e2".to_string());
-        assert_eq!(e1, e2)
+        assert_eq!(e1, e2);
+
+        let e3 = DatatypeError::FailedToDeserialize("e2".to_string());
+        assert_ne!(e2, e3);
+    }
+
+    #[test]
+    fn can_use_err_macro() {
+        err!(DatatypeError::FailedToDeserialize, "hello");
+        err!(DatatypeError::FailedTransaction);
     }
 }

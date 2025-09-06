@@ -16,6 +16,15 @@ pub(crate) mod utils;
 
 pub trait IntoString: Into<String> + Debug {}
 
+/// A trait for types that can be converted into a String and debugged.
+///
+/// This trait combines `Into<String>` and `Debug` bounds for convenience
+/// in function parameters that need both string conversion and debug output.
+///
+/// # Note
+///
+/// This trait is automatically implemented for all types that satisfy
+/// both `Into<String>` and `Debug`.
 impl<T: Into<String> + Debug> IntoString for T {}
 
 #[cfg(feature = "tracing")]

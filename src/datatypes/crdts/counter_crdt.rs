@@ -1,5 +1,3 @@
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
 use crate::{
     DatatypeError,
     datatypes::common::ReturnType,
@@ -31,24 +29,17 @@ impl CounterCrdt {
             _ => unimplemented!(),
         }
     }
-}
 
-impl Serialize for CounterCrdt {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_i64(self.value)
+    #[inline]
+    pub fn to_bytes(&self) -> [u8; 8] {
+        self.value.to_le_bytes()
     }
-}
 
-impl<'de> Deserialize<'de> for CounterCrdt {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value = i64::deserialize(deserializer)?;
-        Ok(Self { value })
+    #[inline]
+    pub fn from_bytes(bytes: &[u8; 8]) -> Self {
+        Self {
+            value: i64::from_le_bytes(*bytes),
+        }
     }
 }
 
@@ -71,11 +62,11 @@ mod tests_counter_crdt {
         let mut counter = CounterCrdt::default();
         counter.increase_by(123);
 
-        let serialized = serde_json::to_string(&counter).unwrap();
-        info!("serialized counter: {serialized}");
-        assert_eq!(serialized, "123");
+        let serialized = counter.to_bytes();
+        info!("serialized counter: {serialized:?}");
+        assert_eq!(serialized, 123_i64.to_le_bytes());
 
-        let deserialized: CounterCrdt = serde_json::from_str::<CounterCrdt>(&serialized).unwrap();
+        let deserialized: CounterCrdt = CounterCrdt::from_bytes(&serialized);
         assert_eq!(deserialized.value(), counter.value());
     }
 }

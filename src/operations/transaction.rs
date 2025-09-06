@@ -15,6 +15,10 @@ pub struct Transaction {
 }
 
 impl Transaction {
+    pub fn cuid(&self) -> &Cuid {
+        &self.cuid
+    }
+
     pub fn new(op_id: &mut OperationId) -> Self {
         Self {
             cuid: op_id.cuid.clone(),
@@ -42,6 +46,10 @@ impl Transaction {
 
     pub fn push_operation(&mut self, op: Operation) {
         self.operations.push(op);
+    }
+
+    pub fn iter_operation(&self, c: impl FnMut(&Operation)) {
+        self.operations.iter().for_each(c);
     }
 }
 

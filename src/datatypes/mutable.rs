@@ -1,8 +1,10 @@
+use std::sync::Arc;
+
 use tracing::instrument;
 
 use crate::{
     DataType, DatatypeError, DatatypeState,
-    datatypes::{common::ReturnType, crdts::Crdt},
+    datatypes::{common::ReturnType, crdts::Crdt, rollback::RollbackData},
     operations::{Operation, transaction::Transaction},
     types::operation_id::OperationId,
 };
@@ -13,6 +15,7 @@ pub struct MutableDatatype {
     pub state: DatatypeState,
     pub op_id: OperationId,
     pub transaction: Option<Transaction>,
+    pub rollback: RollbackData,
 }
 
 impl MutableDatatype {
@@ -22,6 +25,24 @@ impl MutableDatatype {
             state,
             op_id: OperationId::new(),
             transaction: Default::default(),
+            rollback: Default::default(),
+        }
+    }
+
+    pub fn set_rollback(&mut self) {
+        self.rollback
+            .set(&self.op_id, self.crdt.serialize(), self.state);
+    }
+
+    #[instrument(skip_all)]
+    pub fn do_rollback(&mut self) {
+        self.op_id = self.rollback.op_id.clone();
+        self.state = self.rollback.state;
+        self.crdt.deserialize(&self.rollback.crdt);
+        let transactions = self.rollback.transactions.clone();
+
+        for tx in transactions.iter() {
+            self.replay_transaction(tx);
         }
     }
 
@@ -29,10 +50,37 @@ impl MutableDatatype {
         if committed {
             if let Some(mut tx) = self.transaction.take() {
                 tx.set_tag(tag);
-                // do something related to rollback
+                let tx = Arc::new(tx);
+                self.rollback.push_transaction(tx);
             }
         } else {
-            // do something related to rollback
+            self.do_rollback();
+        }
+    }
+
+    fn replay_local_operation(
+        &mut self,
+        op: &Operation,
+        op_id: &OperationId,
+    ) -> Result<ReturnType, DatatypeError> {
+        self.op_id.sync(op_id);
+        let result = self.crdt.execute_local_operation(op);
+        if result.is_err() {
+            // this cannot happen
+            unreachable!()
+        }
+        result
+    }
+
+    fn replay_transaction(&mut self, tx: &Arc<Transaction>) {
+        if *tx.cuid() == self.op_id.cuid {
+            let mut op_id = tx.get_op_id();
+            tx.iter_operation(|op| {
+                op_id.lamport = op.lamport;
+                self.replay_local_operation(op, &op_id).unwrap();
+            });
+        } else {
+            // replay remote operation
         }
     }
 

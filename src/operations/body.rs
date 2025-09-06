@@ -22,17 +22,22 @@ impl Debug for OperationBody {
 #[display("")]
 pub struct Delay4TestBody {
     duration_ms: u64,
+    success: bool,
 }
 
 #[cfg(test)]
 impl Delay4TestBody {
-    pub fn new(duration_ms: u64) -> Self {
-        Self { duration_ms }
+    pub fn new(duration_ms: u64, success: bool) -> Self {
+        Self {
+            duration_ms,
+            success,
+        }
     }
 
-    pub fn run(&self) {
+    pub fn run(&self) -> Result<(), ()> {
         use std::{thread::sleep, time::Duration};
         sleep(Duration::from_millis(self.duration_ms));
+        if self.success { Ok(()) } else { Err(()) }
     }
 }
 
