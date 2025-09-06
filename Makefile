@@ -10,8 +10,12 @@ lint:
 
 .PHONY: tarpaulin
 tarpaulin:
-	SYNCYAM_RS_OTEL_ENABLED=true cargo tarpaulin -o html --all-features --engine llvm --output-dir ./coverage
+	SYNCYAM_RS_OTEL_ENABLED=true cargo tarpaulin -o html -o xml -o Lcov --all-features --engine llvm --output-dir ./coverage
 	open coverage/tarpaulin-report.html
+
+.PHONY: update-coverage-badge
+update-coverage-badge:
+	./scripts/update-coverage-badge.sh
 
 .PHONY: enable-jaeger
 enable-jaeger:
