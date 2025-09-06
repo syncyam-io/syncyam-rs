@@ -5,7 +5,7 @@ use std::{
 
 use crate::types::uid::Cuid;
 
-#[derive(PartialEq, Default)]
+#[derive(PartialEq, Default, Clone)]
 pub struct OperationId {
     pub lamport: u64,
     pub cuid: Cuid,

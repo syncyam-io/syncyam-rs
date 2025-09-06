@@ -1379,8 +1379,6 @@ dependencies = [
  "opentelemetry_sdk",
  "parking_lot",
  "rstest",
- "serde",
- "serde_json",
  "thiserror",
  "time",
  "tokio",

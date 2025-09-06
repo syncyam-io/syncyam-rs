@@ -14,7 +14,7 @@ pub mod transaction;
 
 #[derive(Clone)]
 pub struct Operation {
-    lamport: u64,
+    pub lamport: u64,
     pub body: OperationBody,
     at: SystemTime,
 }
@@ -35,8 +35,11 @@ impl Operation {
     }
 
     #[cfg(test)]
-    pub fn new_delay_for_test(duration_ms: u64) -> Self {
-        Self::new(OperationBody::Delay4Test(Delay4TestBody::new(duration_ms)))
+    pub fn new_delay_for_test(duration_ms: u64, success: bool) -> Self {
+        Self::new(OperationBody::Delay4Test(Delay4TestBody::new(
+            duration_ms,
+            success,
+        )))
     }
 
     pub fn set_lamport(&mut self, lamport: u64) {
