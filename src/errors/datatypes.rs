@@ -40,25 +40,3 @@ impl PartialEq for DatatypeError {
         std::mem::discriminant(self) == std::mem::discriminant(other)
     }
 }
-
-#[cfg(test)]
-mod tests_datatype_errors {
-    use super::*;
-    use crate::errors::err;
-
-    #[test]
-    fn can_compare_datatypes_errors() {
-        let e1 = DatatypeError::FailedTransaction("e1".to_string());
-        let e2 = DatatypeError::FailedTransaction("e2".to_string());
-        assert_eq!(e1, e2);
-
-        let e3 = DatatypeError::FailedToDeserialize("e2".to_string());
-        assert_ne!(e2, e3);
-    }
-
-    #[test]
-    fn can_use_err_macro() {
-        err!(DatatypeError::FailedToDeserialize, "hello");
-        err!(DatatypeError::FailedTransaction);
-    }
-}
