@@ -36,7 +36,7 @@ impl DatatypeManager {
                 let existing = entry.get();
                 if existing.get_type() != r#type || existing.get_state() != state {
                     return Err(err!(
-                        ClientError::CannotSubscribeOrCreateDatatype,
+                        ClientError::FailedToSubscribeOrCreateDatatype,
                         format!(
                             "{type:?} is demanded as {state:?}, but the clients has {:?} for '{key}' as {:?}",
                             existing.get_type(),
@@ -73,7 +73,7 @@ mod tests_datatype_manager {
             dm.subscribe_or_create_datatype("k1", DataType::List, DatatypeState::DueToCreate);
         assert_eq!(
             res2.err().unwrap(),
-            ClientError::CannotSubscribeOrCreateDatatype("".into())
+            ClientError::FailedToSubscribeOrCreateDatatype("".into())
         );
 
         let res3 = dm.subscribe_or_create_datatype(
@@ -83,7 +83,7 @@ mod tests_datatype_manager {
         );
         assert_eq!(
             res3.err().unwrap(),
-            ClientError::CannotSubscribeOrCreateDatatype("".into())
+            ClientError::FailedToSubscribeOrCreateDatatype("".into())
         );
 
         let res4 =

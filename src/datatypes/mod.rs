@@ -29,24 +29,34 @@ pub(crate) use datatype_instrument;
 
 use crate::{Counter, DataType, Datatype, DatatypeState, clients::client::ClientInfo};
 
+/// A typed wrapper for concrete datatypes managed by the client.
+///
+/// `DatatypeSet` allows returning a single enum while preserving
+/// type information and shared behavior across datatypes.
 #[derive(Clone)]
 pub enum DatatypeSet {
     Counter(Counter),
 }
 
 impl DatatypeSet {
+    /// Returns the logical [`DataType`] of this set member.
     pub fn get_type(&self) -> DataType {
         match self {
             DatatypeSet::Counter(_) => DataType::Counter,
         }
     }
 
+    /// Returns the current [`DatatypeState`].
     pub fn get_state(&self) -> DatatypeState {
         match self {
             DatatypeSet::Counter(cnt) => cnt.get_state(),
         }
     }
 
+    /// Creates a new [`DatatypeSet`] instance for the given `type` and `key`.
+    ///
+    /// This is primarily used by the client internals to construct
+    /// a concrete datatype variant tied to a specific client context.
     pub fn new(
         r#type: DataType,
         key: &str,

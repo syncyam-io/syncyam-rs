@@ -37,10 +37,10 @@ mod tests_datatype_errors {
         let d2 = err!(DatatypeError::FailedTransaction);
         assert_ne!(d1, d2);
         let c1 = err!(
-            ClientError::CannotSubscribeOrCreateDatatype,
+            ClientError::FailedToSubscribeOrCreateDatatype,
             "clients error"
         );
-        let c2 = err!(ClientError::CannotSubscribeOrCreateDatatype);
+        let c2 = err!(ClientError::FailedToSubscribeOrCreateDatatype);
         assert_eq!(c1, c2);
     }
 }

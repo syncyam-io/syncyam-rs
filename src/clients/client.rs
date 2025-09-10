@@ -7,6 +7,18 @@ use crate::{
     datatypes::DatatypeSet, errors::clients::ClientError, types::uid::Cuid,
 };
 
+/// A builder for constructing a [`Client`].
+///
+/// Use [`Client::builder`] to start, then call [`ClientBuilder::build`]
+/// to obtain a ready-to-use client instance.
+///
+/// # Examples
+/// ```
+/// use syncyam::Client;
+/// let client = Client::builder("my-collection", "my-app").build().unwrap();
+/// assert_eq!(client.get_collection(), "my-collection");
+/// assert_eq!(client.get_alias(), "my-app");
+/// ```
 pub struct ClientBuilder {
     collection: String,
     alias: String,
@@ -14,6 +26,9 @@ pub struct ClientBuilder {
 }
 
 impl ClientBuilder {
+    /// Finalizes the builder and returns a new [`Client`].
+    ///
+    /// It initializes client metadata and datatype management structures.
     pub fn build(self) -> Result<Client, ClientError> {
         let client_info = Arc::new(ClientInfo {
             collection: self.collection.into_boxed_str(),
@@ -35,12 +50,29 @@ pub struct ClientInfo {
     pub alias: Box<str>,
 }
 
+/// Facade for creating and subscribing to SyncYam datatypes.
+///
+/// A `Client` is scoped by a logical `collection` and an `alias` that
+/// are propagated into tracing metadata and used to associate created
+/// datatypes with their owner.
+///
+/// Use [`Client::builder`] to construct a client and the `create_*`/`subscribe_*`
+/// helpers to get specific datatypes.
 pub struct Client {
     info: Arc<ClientInfo>,
     datatypes: RwLock<DatatypeManager>,
 }
 
 impl Client {
+    /// Returns a ClientBuilder to construct a new client with
+    /// the given `collection` and `alias`.
+    ///
+    /// # Examples
+    /// ```
+    /// use syncyam::Client;
+    /// let client = Client::builder("col", "alias").build().unwrap();
+    /// assert_eq!(client.get_alias(), "alias");
+    /// ```
     pub fn builder(collection: impl IntoString, alias: impl IntoString) -> ClientBuilder {
         ClientBuilder {
             collection: collection.into(),
@@ -60,6 +92,10 @@ impl Client {
             .subscribe_or_create_datatype(&key, r#type, state)
     }
 
+    /// Subscribes to an existing `Counter` identified by `key`.
+    ///
+    /// If the datatype does not yet exist locally, it is registered
+    /// with [`DatatypeState::DueToSubscribe`].
     pub fn subscribe_counter(&self, key: impl IntoString) -> Result<Counter, ClientError> {
         let ds = self.subscribe_or_create_datatype(
             key.into(),
@@ -70,6 +106,11 @@ impl Client {
         Ok(counter)
     }
 
+    /// Creates a `Counter` identified by `key`.
+    ///
+    /// If the datatype already exists with a compatible state, the
+    /// existing handle is returned. New instances are marked with
+    /// [`DatatypeState::DueToCreate`].
     pub fn create_counter(&self, key: impl IntoString) -> Result<Counter, ClientError> {
         let ds = self.subscribe_or_create_datatype(
             key.into(),
@@ -80,6 +121,11 @@ impl Client {
         Ok(counter)
     }
 
+    /// Ensures a `Counter` exists by subscribing or creating it.
+    ///
+    /// This helper is convenient when the caller does not know if
+    /// the datatype exists. The returned instance is marked with
+    /// [`DatatypeState::DueToSubscribeOrCreate`].
     pub fn subscribe_or_create_counter(
         &self,
         key: impl IntoString,
@@ -93,14 +139,18 @@ impl Client {
         Ok(counter)
     }
 
+    /// Returns an existing datatype by `key`, if it has been created or
+    /// subscribed via this client.
     pub fn get_datatype(&self, key: &str) -> Option<DatatypeSet> {
         self.datatypes.read().get_datatype(key)
     }
 
+    /// Returns the collection name this client is associated with.
     pub fn get_collection(&self) -> &str {
         &self.info.collection
     }
 
+    /// Returns the alias (application/client name) for this client.
     pub fn get_alias(&self) -> &str {
         &self.info.alias
     }
