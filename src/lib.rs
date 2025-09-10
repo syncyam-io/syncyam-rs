@@ -1,11 +1,13 @@
 use std::fmt::Debug;
 
 pub use crate::{
-    datatypes::{counter::Counter, datatype::Datatype},
-    errors::datatypes::DatatypeError,
+    clients::client::Client,
+    datatypes::{DatatypeSet, counter::Counter, datatype::Datatype},
+    errors::{clients::ClientError, datatypes::DatatypeError},
     types::datatype::{DataType, DatatypeState},
 };
 
+pub(crate) mod clients;
 mod constants;
 pub(crate) mod datatypes;
 pub(crate) mod errors;
@@ -13,8 +15,6 @@ pub(crate) mod observability;
 pub(crate) mod operations;
 pub(crate) mod types;
 pub(crate) mod utils;
-
-pub trait IntoString: Into<String> + Debug {}
 
 /// A trait for types that can be converted into a String and debugged.
 ///
@@ -24,7 +24,9 @@ pub trait IntoString: Into<String> + Debug {}
 /// # Note
 ///
 /// This trait is automatically implemented for all types that satisfy
-/// both `Into<String>` and `Debug`.
+/// both `Into<String>` and `Debug`
+pub trait IntoString: Into<String> + Debug {}
+
 impl<T: Into<String> + Debug> IntoString for T {}
 
 #[cfg(feature = "tracing")]

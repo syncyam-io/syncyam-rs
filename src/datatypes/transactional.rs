@@ -7,6 +7,7 @@ use tracing_opentelemetry::OpenTelemetrySpanExt;
 
 use crate::{
     DataType, DatatypeState, IntoString,
+    clients::client::ClientInfo,
     datatypes::{common::ReturnType, datatype::Datatype, mutable::MutableDatatype},
     errors::datatypes::DatatypeError,
     operations::Operation,
@@ -72,6 +73,7 @@ pub struct Attributes {
     pub key: String,
     pub r#type: DataType,
     pub duid: Duid,
+    pub client_info: Arc<ClientInfo>,
 }
 
 pub struct TransactionalDatatype {
@@ -97,11 +99,17 @@ impl Datatype for TransactionalDatatype {
 }
 
 impl TransactionalDatatype {
-    pub fn new(key: &str, r#type: DataType, state: DatatypeState) -> Self {
+    pub fn new(
+        key: &str,
+        r#type: DataType,
+        state: DatatypeState,
+        client_info: Arc<ClientInfo>,
+    ) -> Self {
         let attr = Attributes {
             key: key.to_owned(),
             r#type,
             duid: Duid::new(),
+            client_info,
         };
         let transactional = Self {
             attr,
@@ -129,11 +137,9 @@ impl TransactionalDatatype {
         let g_begin_span = begin_span.enter();
         loop {
             match self.begin_transaction(tx_ctx.clone()) {
-                BeginTransactionResult::BeginTx(mut dg) => {
+                BeginTransactionResult::BeginTx(dg) => {
                     begin_span.add_event("BeginTx", vec![]);
                     drop(g_begin_span);
-
-                    dg.commit();
                     _defer_guard = Some(dg);
                     break;
                 }
@@ -264,7 +270,7 @@ mod tests_transactional {
     use tracing_opentelemetry::OpenTelemetrySpanExt;
 
     use crate::{
-        DataType, DatatypeState,
+        DataType,
         datatypes::transactional::{TransactionContext, TransactionalDatatype},
         operations::Operation,
     };
@@ -275,7 +281,8 @@ mod tests_transactional {
         let tx_dt = Arc::new(TransactionalDatatype::new(
             "can_fail_operation_execution",
             DataType::Counter,
-            DatatypeState::default(),
+            Default::default(),
+            Default::default(),
         ));
         {
             let mutable = tx_dt.mutable.write();
@@ -310,7 +317,8 @@ mod tests_transactional {
         let tx_dt = Arc::new(TransactionalDatatype::new(
             "can_do_transaction",
             DataType::Counter,
-            DatatypeState::default(),
+            Default::default(),
+            Default::default(),
         ));
         let parent_span = Span::current();
 
@@ -344,6 +352,7 @@ mod tests_transactional {
         let tx_dt = Arc::new(TransactionalDatatype::new(
             module_path!(),
             DataType::Counter,
+            Default::default(),
             Default::default(),
         ));
         let parent_span = Span::current();

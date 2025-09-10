@@ -11,11 +11,12 @@ use crate::{DataType, DatatypeState, datatypes::transactional::TransactionalData
 ///
 /// # Example
 /// ```
+/// use syncyam::Client;
 /// use syncyam::{Counter, Datatype};
 /// use syncyam::{DatatypeState, DataType};
-/// // TODO: this should be updated to create a Counter from a client
-/// let counter = Counter::new("example".to_string(), DatatypeState::DueToCreate);
-/// assert_eq!(counter.get_key(), "example");
+/// let client = Client::builder("test-collection", "test-client").build().unwrap();
+/// let counter = client.create_counter("test-counter".to_string()).unwrap();
+/// assert_eq!(counter.get_key(), "test-counter");
 /// assert_eq!(counter.get_type(), DataType::Counter);
 /// assert_eq!(counter.get_state(), DatatypeState::DueToCreate);
 /// ```
@@ -56,7 +57,12 @@ mod tests_datatype_trait {
     #[test]
     fn can_call_datatype_trait_functions() {
         let key = module_path!();
-        let data = TransactionalDatatype::new(key, DataType::Counter, DatatypeState::DueToCreate);
+        let data = TransactionalDatatype::new(
+            key,
+            DataType::Counter,
+            Default::default(),
+            Default::default(),
+        );
         assert_eq!(data.get_key(), key);
         assert_eq!(data.get_type(), DataType::Counter);
         assert_eq!(data.get_state(), DatatypeState::DueToCreate);

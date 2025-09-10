@@ -2,6 +2,7 @@ use std::{error::Error, sync::Arc};
 
 use crate::{
     DataType, DatatypeError, DatatypeState, IntoString,
+    clients::client::ClientInfo,
     datatypes::{
         common::ReturnType,
         crdts::Crdt,
@@ -21,9 +22,14 @@ pub struct Counter {
 
 impl Counter {
     // TODO: this should be pub (crate)
-    pub fn new(key: String, state: DatatypeState) -> Self {
+    pub(crate) fn new(key: String, state: DatatypeState, client_info: Arc<ClientInfo>) -> Self {
         Counter {
-            datatype: Arc::new(TransactionalDatatype::new(&key, DataType::Counter, state)),
+            datatype: Arc::new(TransactionalDatatype::new(
+                &key,
+                DataType::Counter,
+                state,
+                client_info,
+            )),
             tx_ctx: Default::default(),
         }
     }
@@ -45,8 +51,9 @@ impl Counter {
     /// # Examples
     ///
     /// ```
-    /// # use syncyam::{Counter, DatatypeState};
-    /// let counter = Counter::new("test".to_string(), DatatypeState::default());
+    /// # use syncyam::{Client, Counter, DatatypeState};
+    /// let client = Client::builder("test-collection", "test-client").build().unwrap();
+    /// let counter = client.create_counter("test-counter".to_string()).unwrap();
     /// assert_eq!(counter.increase_by(5), 5);
     /// assert_eq!(counter.increase_by(-2), 3);
     /// ```
@@ -72,8 +79,9 @@ impl Counter {
     /// # Examples
     ///
     /// ```
-    /// # use syncyam::{Counter, DatatypeState};
-    /// let counter = Counter::new("test".to_string(), DatatypeState::default());
+    /// # use syncyam::{Client, Counter, DatatypeState};
+    /// let client = Client::builder("test-collection", "test-client").build().unwrap();
+    /// let counter = client.create_counter("test-counter".to_string()).unwrap();
     /// assert_eq!(counter.increase(), 1);
     /// assert_eq!(counter.increase(), 2);
     /// ```
@@ -90,8 +98,9 @@ impl Counter {
     /// # Examples
     ///
     /// ```
-    /// # use syncyam::{Counter, DatatypeState};
-    /// let counter = Counter::new("test".to_string(), DatatypeState::default());
+    /// # use syncyam::{Client, Counter, DatatypeState};
+    /// let client = Client::builder("test-collection", "test-client").build().unwrap();
+    /// let counter = client.create_counter("test-counter".to_string()).unwrap();
     /// assert_eq!(counter.get_value(), 0);
     /// counter.increase();
     /// assert_eq!(counter.get_value(), 1);
@@ -120,8 +129,9 @@ impl Counter {
     /// # Examples
     ///
     /// ```
-    /// # use syncyam::{Counter, DatatypeState};
-    /// let counter = Counter::new("test".to_string(), DatatypeState::default());
+    /// # use syncyam::{Client, Counter, DatatypeState};
+    /// let client = Client::builder("test-collection", "test-client").build().unwrap();
+    /// let counter = client.create_counter("test-counter".to_string()).unwrap();
     ///
     /// // Successful transaction
     /// let result = counter.transaction("batch-update", |c| {
@@ -187,7 +197,11 @@ mod tests_counter {
 
     #[test]
     fn can_call_public_blanket_trait_methods() {
-        let counter = Counter::new(module_path!().to_owned(), Default::default());
+        let counter = Counter::new(
+            module_path!().to_owned(),
+            Default::default(),
+            Default::default(),
+        );
         assert_eq!(counter.get_type(), DataType::Counter);
         assert_eq!(counter.get_key(), module_path!().to_string());
         assert_eq!(counter.get_state(), Default::default());
@@ -196,7 +210,11 @@ mod tests_counter {
     #[test]
     #[instrument]
     fn can_use_counter_operations() {
-        let counter = Counter::new(module_path!().to_owned(), Default::default());
+        let counter = Counter::new(
+            module_path!().to_owned(),
+            Default::default(),
+            Default::default(),
+        );
         assert_eq!(1, counter.increase());
         assert_eq!(11, counter.increase_by(10));
         assert_eq!(11, counter.get_value());
@@ -205,7 +223,11 @@ mod tests_counter {
     #[test]
     #[instrument]
     fn can_use_transaction() {
-        let counter = Counter::new(module_path!().to_owned(), Default::default());
+        let counter = Counter::new(
+            module_path!().to_owned(),
+            Default::default(),
+            Default::default(),
+        );
         let result1 = counter.transaction("success", |c| {
             c.increase_by(1);
             c.increase_by(2);
@@ -226,7 +248,11 @@ mod tests_counter {
     #[tokio::test(flavor = "multi_thread", worker_threads = 10)]
     #[instrument]
     async fn can_run_transactions_concurrently() {
-        let counter = Counter::new(module_path!().to_owned(), Default::default());
+        let counter = Counter::new(
+            module_path!().to_owned(),
+            Default::default(),
+            Default::default(),
+        );
         let mut join_handles = vec![];
         let parent_span = Span::current();
 
