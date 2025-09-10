@@ -39,14 +39,15 @@ pub enum DatatypeSet {
 }
 
 impl DatatypeSet {
-    /// Returns the logical [`DataType`] of this set member.
+    /// Returns the internal datatype in this wrapper, e.g. `DataType::Counter`
     pub fn get_type(&self) -> DataType {
         match self {
             DatatypeSet::Counter(_) => DataType::Counter,
         }
     }
 
-    /// Returns the current [`DatatypeState`].
+    /// Returns [`DatatypeState`] of the internal datatype in this wrapper,
+    /// e.g., `DatatypeState::DueToCreate`
     pub fn get_state(&self) -> DatatypeState {
         match self {
             DatatypeSet::Counter(cnt) => cnt.get_state(),
@@ -57,7 +58,7 @@ impl DatatypeSet {
     ///
     /// This is primarily used by the client internals to construct
     /// a concrete datatype variant tied to a specific client context.
-    pub fn new(
+    pub(crate) fn new(
         r#type: DataType,
         key: &str,
         state: DatatypeState,
@@ -70,6 +71,15 @@ impl DatatypeSet {
             _ => {
                 todo!()
             }
+        }
+    }
+
+    /// Ensure and return the internal datatype if the type matches `DataType::Counter`.
+    ///
+    /// If the type doesn't match, this returns None.
+    pub fn ensure_counter(self) -> Option<Counter> {
+        match self {
+            DatatypeSet::Counter(cnt) => Some(cnt),
         }
     }
 }

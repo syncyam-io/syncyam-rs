@@ -97,13 +97,12 @@ impl Client {
     /// If the datatype does not yet exist locally, it is registered
     /// with [`DatatypeState::DueToSubscribe`].
     pub fn subscribe_counter(&self, key: impl IntoString) -> Result<Counter, ClientError> {
-        let ds = self.subscribe_or_create_datatype(
+        self.subscribe_or_create_datatype(
             key.into(),
             DataType::Counter,
             DatatypeState::DueToSubscribe,
-        )?;
-        let DatatypeSet::Counter(counter) = ds;
-        Ok(counter)
+        )
+        .map(|ds| Ok(ds.ensure_counter().unwrap()))?
     }
 
     /// Creates a `Counter` identified by `key`.
@@ -112,13 +111,8 @@ impl Client {
     /// existing handle is returned. New instances are marked with
     /// [`DatatypeState::DueToCreate`].
     pub fn create_counter(&self, key: impl IntoString) -> Result<Counter, ClientError> {
-        let ds = self.subscribe_or_create_datatype(
-            key.into(),
-            DataType::Counter,
-            DatatypeState::DueToCreate,
-        )?;
-        let DatatypeSet::Counter(counter) = ds;
-        Ok(counter)
+        self.subscribe_or_create_datatype(key.into(), DataType::Counter, DatatypeState::DueToCreate)
+            .map(|ds| Ok(ds.ensure_counter().unwrap()))?
     }
 
     /// Ensures a `Counter` exists by subscribing or creating it.
@@ -130,13 +124,12 @@ impl Client {
         &self,
         key: impl IntoString,
     ) -> Result<Counter, ClientError> {
-        let ds = self.subscribe_or_create_datatype(
+        self.subscribe_or_create_datatype(
             key.into(),
             DataType::Counter,
             DatatypeState::DueToSubscribeOrCreate,
-        )?;
-        let DatatypeSet::Counter(counter) = ds;
-        Ok(counter)
+        )
+        .map(|ds| Ok(ds.ensure_counter().unwrap()))?
     }
 
     /// Returns an existing datatype by `key`, if it has been created or
