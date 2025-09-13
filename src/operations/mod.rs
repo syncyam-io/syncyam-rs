@@ -19,6 +19,10 @@ pub struct Operation {
     at: SystemTime,
 }
 
+pub trait MemoryMeasurable {
+    fn size(&self) -> usize;
+}
+
 impl Operation {
     pub fn new(body: OperationBody) -> Self {
         Self {
@@ -64,11 +68,19 @@ impl Display for Operation {
     }
 }
 
+impl MemoryMeasurable for Operation {
+    fn size(&self) -> usize {
+        size_of::<u64>() + size_of::<SystemTime>() + self.body.size()
+    }
+}
+
 #[cfg(test)]
 mod tests_operations {
+    use std::time::SystemTime;
+
     use tracing::info;
 
-    use crate::operations::Operation;
+    use crate::operations::{MemoryMeasurable, Operation};
 
     #[test]
     fn can_new_and_print_operations() {
@@ -76,5 +88,14 @@ mod tests_operations {
         info!("{op} vs. {op:?}");
         let s = op.to_string();
         assert_eq!(s, format!("{op:?}"));
+    }
+
+    #[test]
+    fn can_measure_operation_size() {
+        let constant_size = size_of::<u64>() + size_of::<SystemTime>();
+        let op = Operation::new_counter_increase(1);
+        assert_eq!(op.size(), constant_size + op.body.size());
+        let op = Operation::new_delay_for_test(1, true);
+        assert_eq!(op.size(), constant_size + op.body.size());
     }
 }

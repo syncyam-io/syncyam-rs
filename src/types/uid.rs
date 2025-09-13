@@ -5,7 +5,7 @@ use nanoid::nanoid;
 pub type Cuid = Uid;
 pub type Duid = Uid;
 
-const UID_LEN: usize = 16;
+pub const UID_LEN: usize = 16;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Ord, PartialOrd)]
 pub struct Uid(String);
