@@ -75,7 +75,7 @@ impl MutableDatatype {
     fn replay_transaction(&mut self, tx: &Arc<Transaction>) {
         if *tx.cuid() == self.op_id.cuid {
             let mut op_id = tx.get_op_id();
-            tx.iter_operation(|op| {
+            tx.iter().for_each(|op| {
                 op_id.lamport = op.lamport;
                 self.replay_local_operation(op, &op_id).unwrap();
             });

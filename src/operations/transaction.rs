@@ -1,9 +1,17 @@
 use std::fmt::{Debug, Display, Formatter};
 
 use crate::{
-    operations::Operation,
+    operations::{MemoryMeasurable, Operation},
+    types,
     types::{operation_id::OperationId, uid::Cuid},
 };
+
+const TRANSACTION_CONSTANT_SIZE: usize = size_of::<Vec<Operation>>() // operations
+    + types::uid::UID_LEN // cuid
+    + size_of::<Option<String>>() // tag
+    + size_of::<u64>() // cseq
+    + size_of::<u64>() // sseq
+    + size_of::<bool>(); // event
 
 pub struct Transaction {
     cuid: Cuid,
@@ -48,8 +56,8 @@ impl Transaction {
         self.operations.push(op);
     }
 
-    pub fn iter_operation(&self, c: impl FnMut(&Operation)) {
-        self.operations.iter().for_each(c);
+    pub fn iter(&self) -> std::slice::Iter<Operation> {
+        self.operations.iter()
     }
 }
 
@@ -82,12 +90,23 @@ impl Display for Transaction {
     }
 }
 
+impl MemoryMeasurable for Transaction {
+    fn size(&self) -> usize {
+        let op_size: usize = self.operations.iter().map(|op| op.size()).sum();
+        let tag_size = match &self.tag {
+            Some(s) => s.len(),
+            None => 0,
+        };
+        TRANSACTION_CONSTANT_SIZE + tag_size + op_size
+    }
+}
+
 #[cfg(test)]
 mod tests_transaction {
     use tracing::info;
 
-    use super::{OperationId, Transaction};
-    use crate::operations::Operation;
+    use super::{OperationId, TRANSACTION_CONSTANT_SIZE, Transaction};
+    use crate::operations::{MemoryMeasurable, Operation};
 
     #[test]
     fn can_debug_and_display_transaction() {
@@ -110,5 +129,19 @@ mod tests_transaction {
         let op_id_tx = tx.get_op_id();
         info!("{op_id_tx}");
         assert_eq!(op_id, op_id_tx);
+    }
+
+    #[test]
+    fn can_measure_transaction_size() {
+        let mut op_id = OperationId::new();
+        let mut tx = Transaction::new(&mut op_id);
+        assert_eq!(tx.size(), TRANSACTION_CONSTANT_SIZE);
+        tx.set_tag(Some("1234567890".to_string()));
+        assert_eq!(tx.size(), TRANSACTION_CONSTANT_SIZE + 10);
+        let op = Operation::new_counter_increase(1);
+        tx.push_operation(op.clone());
+        assert_eq!(tx.size(), TRANSACTION_CONSTANT_SIZE + 10 + op.size());
+        tx.push_operation(op.clone());
+        assert_eq!(tx.size(), TRANSACTION_CONSTANT_SIZE + 10 + op.size() * 2);
     }
 }
